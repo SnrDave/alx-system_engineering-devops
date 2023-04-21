@@ -1,10 +1,11 @@
-# Fix nginx requests error
-exec {'Replace line':
-path     => '/etc/default/nginx',
-command  => "echo 'ULIMIT=\"-n 4096\"' > /etc/default/nginx",
-provider => shell
+# Fix ulimit request
+exec { 'ulimit':
+  command  => 'sed -i "s/ULIMIT=\"-n 15\"/ULIMIT=\"-n 2000\"/g" /etc/default/nginx',
+  provider => shell,
 }
--> exec {'Restart nginx':
-command  =>  'service nginx restart',
-provider => shell
+
+exec { 'restorenginx':
+  command  => 'service nginx restart',
+  provider => shell,
+  require  => Exec['ulimit'],
 }
